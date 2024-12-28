@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #userList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #userList li {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #d32f2f;
+        }
+
+        #addButton {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            background-color: #4caf50;
+        }
+
+        #addButton:hover {
+            background-color: #388e3c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dog Park User Management</h1>
+    <button id="addButton">אני בגינה</button>
+    <ul id="userList"></ul>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx1CoE1L-DYezs6c16frfFSmjINC1NfCh-8IWASoUSAx-_dIEllq1Dj-o9wlFG-Gn_Afg/exec";
+
+        async function fetchUsers() {
+            const response = await fetch(WEB_APP_URL + "?action=getUsers");
+            const users = await response.json();
+            renderUserList(users);
+        }
+
+        async function addUser(name) {
+            const response = await fetch(WEB_APP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "addUser", name })
+            });
+            fetchUsers();
+        }
+
+        async function deleteUser(name) {
+            const response = await fetch(WEB_APP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "deleteUser", name })
+            });
+            fetchUsers();
+        }
+
+        function renderUserList(users) {
+            const userList = document.getElementById("userList");
+            userList.innerHTML = "";
+            users.forEach(user => {
+                const li = document.createElement("li");
+                li.textContent = `${user.name} - ${user.time}`;
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "✖";
+                deleteButton.onclick = () => deleteUser(user.name);
+                li.appendChild(deleteButton);
+                userList.appendChild(li);
+            });
+        }
+
+        document.getElementById("addButton").onclick = () => {
+            const name = prompt("Enter your name:");
+            if (name) {
+                addUser(name);
+            }
+        };
+
+        fetchUsers();
+    </script>
+</body>
+</html>
